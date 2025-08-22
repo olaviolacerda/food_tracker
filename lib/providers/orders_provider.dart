@@ -1,19 +1,49 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/order.dart';
+import '../data/datasources/orders_datasource.dart';
+import '../data/repositories/orders_repository_impl.dart';
+import '../domain/usecases/get_orders_usecase.dart';
+import '../domain/usecases/add_order_usecase.dart';
+import '../data/datasources/auth_datasource.dart';
+import '../data/repositories/auth_repository_impl.dart';
+
+final authProvider = Provider<String?>((ref) {
+  final ds = InMemoryAuthDataSource();
+  final repo = AuthRepositoryImpl(ds);
+  return repo.getCurrentUserId();
+});
 
 final ordersProvider = StateNotifierProvider<OrdersNotifier, List<Order>>((ref) {
-  return OrdersNotifier();
+  // Wire up in-memory datasource + repository + usecases.
+  final dataSource = InMemoryOrdersDataSource();
+  final repository = OrdersRepositoryImpl(dataSource);
+  final getOrders = GetOrdersUseCase(repository);
+  final addOrder = AddOrderUseCase(repository);
+  final currentUserId = ref.read(authProvider);
+  return OrdersNotifier(getOrders, addOrder, repository: repository, currentUserId: currentUserId);
 });
 
 class OrdersNotifier extends StateNotifier<List<Order>> {
-  OrdersNotifier()
-      : super([
-          Order(id: 1, establishment: "McDonald's", amount: 25.9, date: DateTime(2024, 1, 15), category: 'Delivery'),
-          Order(id: 2, establishment: "Pizza Hut", amount: 45.5, date: DateTime(2024, 1, 14), category: 'Delivery'),
-          Order(id: 3, establishment: "Restaurante Italiano", amount: 89.0, date: DateTime(2024, 1, 12), category: 'Restaurante'),
-        ]);
+  final GetOrdersUseCase _getOrders;
+  final AddOrderUseCase _addOrder;
+  final OrdersRepositoryImpl? repository;
+  final String? currentUserId;
+
+  OrdersNotifier(this._getOrders, this._addOrder, {this.repository, this.currentUserId}) : super([]) {
+    // initialize state from repository (user-scoped if available)
+    _refresh();
+  }
+
+  void _refresh() {
+    if (repository != null && currentUserId != null) {
+      state = repository!.getOrdersForUser(currentUserId!);
+    } else {
+      state = _getOrders();
+    }
+  }
 
   void addOrder(Order order) {
-    state = [order, ...state];
+    _addOrder(order);
+    _refresh();
   }
 }
