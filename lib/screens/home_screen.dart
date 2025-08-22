@@ -4,6 +4,7 @@ import '../providers/orders_provider.dart';
 import 'orders_list_screen.dart';
 import 'add_order_screen.dart';
 import '../models/order.dart';
+import '../utils/category_colors.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -28,7 +29,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   final monthFiltered = orders.where((o) => o.date.year == currentYear && o.date.month == currentMonth).toList();
   final totalSpent = monthFiltered.fold(0.0, (s, o) => s + o.amount);
   final totalOrders = monthFiltered.length;
-  final monthLabel = "${_monthName(currentMonth)} $currentYear";
+  // month label not used currently
 
     return Scaffold(
       appBar: AppBar(
@@ -41,22 +42,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Card(
+                color: Colors.white,
+                elevation: 2,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 child: ListTile(
                   title: const Text('Total gasto no ano'),
-                  trailing: Text('R\$ ${yearlyTotal.toStringAsFixed(2)}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  trailing: Text('R\$ ${yearlyTotal.toStringAsFixed(2)}', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red.shade700)),
                 ),
               ),
               const SizedBox(height: 12),
+
+              const SizedBox(height: 20),
               Card(
+                color: Colors.white,
+                elevation: 2,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 child: ListTile(
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Total do mês (${totalOrders})'),
-                      Text('$totalOrders', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold))
+                      Text('Total do mês ($totalOrders)'),
                     ],
                   ),
-                  trailing: Text('R\$ ${totalSpent.toStringAsFixed(2)}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  trailing: Text('R\$ ${totalSpent.toStringAsFixed(2)}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red.shade700)),
                 ),
               ),
               const SizedBox(height: 12),
@@ -77,30 +85,46 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: categoryColor('delivery'),
         onPressed: () => _openAddOrder(context),
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
 
   Widget _orderCard(Order order) {
     return Card(
+      color: Colors.white,
+      elevation: 1,
       margin: const EdgeInsets.symmetric(vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: ListTile(
-        leading: const Icon(Icons.store),
+        leading: CircleAvatar(
+          backgroundColor: categoryColorWithAlpha(order.category, 0.12),
+          child: Icon(Icons.store, color: categoryColor(order.category)),
+        ),
         title: Text(order.establishment),
-        subtitle: Text('${_formatDate(order.date)} • ${order.category}'),
-        trailing: Text('R\$ ${order.amount.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.w600)),
+        subtitle: Row(
+          children: [
+            Text(_formatDate(order.date)),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(color: categoryColorWithAlpha(order.category, 0.12), borderRadius: BorderRadius.circular(12)),
+              child: Text(order.category, style: TextStyle(color: categoryColor(order.category), fontSize: 12)),
+            ),
+          ],
+        ),
+        trailing: Text('R\$ ${order.amount.toStringAsFixed(2)}', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.red.shade700)),
       ),
     );
   }
 
+  // category colors are provided by lib/utils/category_colors.dart
+
   String _formatDate(DateTime d) => '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
 
-  String _monthName(int month) {
-    const names = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-    return names[month-1];
-  }
+  // month name helper is provided where needed by other screens
 
   void _openOrdersList(BuildContext context) {
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OrdersListScreen()));

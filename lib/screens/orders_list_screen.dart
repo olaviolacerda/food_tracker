@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/orders_provider.dart';
+import '../utils/category_colors.dart';
 
 class OrdersListScreen extends ConsumerStatefulWidget {
   const OrdersListScreen({Key? key}) : super(key: key);
@@ -35,9 +36,12 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen> {
             ),
             const SizedBox(height: 12),
             Card(
+              color: Colors.white,
+              elevation: 2,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: ListTile(
                 title: const Text('Total gasto no período'),
-                trailing: Text('R\$ ${filteredTotal.toStringAsFixed(2)}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                trailing: Text('R\$ ${filteredTotal.toStringAsFixed(2)}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red.shade700)),
                 subtitle: Text('${filtered.length} pedido${filtered.length != 1 ? 's' : ''}'),
               ),
             ),
@@ -50,21 +54,27 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen> {
                       itemBuilder: (context, idx) {
                         final order = filtered[idx];
                         return Card(
+                          color: Colors.white,
+                          elevation: 1,
                           margin: const EdgeInsets.symmetric(vertical: 6),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                           child: ListTile(
-                            leading: const Icon(Icons.store),
+                            leading: CircleAvatar(
+                              backgroundColor: categoryColorWithAlpha(order.category, 0.12),
+                              child: Icon(Icons.store, color: categoryColor(order.category)),
+                            ),
                             title: Text(order.establishment),
                             subtitle: Text(_formatDate(order.date)),
                             trailing: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Text('R\$ ${order.amount.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.w600)),
+                                Text('R\$ ${order.amount.toStringAsFixed(2)}', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.red.shade700)),
                                 const SizedBox(height: 4),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(color: const Color.fromRGBO(255, 165, 0, 0.12), borderRadius: BorderRadius.circular(12)),
-                                  child: Text(order.category, style: const TextStyle(color: Colors.orange, fontSize: 12)),
+                                  decoration: BoxDecoration(color: categoryColorWithAlpha(order.category, 0.12), borderRadius: BorderRadius.circular(12)),
+                                  child: Text(order.category, style: TextStyle(color: categoryColor(order.category), fontSize: 12)),
                                 )
                               ],
                             ),
@@ -112,4 +122,6 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen> {
     const names = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
     return names[month-1];
   }
+
+  // categoryColor util from lib/utils/category_colors.dart
 }

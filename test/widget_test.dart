@@ -14,7 +14,7 @@ import 'package:food_tracker_flutter/main.dart';
 void main() {
   testWidgets('App shows home and opens add-order screen', (WidgetTester tester) async {
     // Build the app wrapped in ProviderScope for Riverpod.
-    await tester.pumpWidget(ProviderScope(child: const FoodTrackerApp()));
+    await tester.pumpWidget(const ProviderScope(child: FoodTrackerApp()));
 
     // Home screen should show the app title and a FAB with add icon.
     expect(find.text('Food Tracker'), findsOneWidget);
