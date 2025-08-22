@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-// Centraliza o mapeamento de categorias para cores.
 Color categoryColor(String category) {
   final key = category.trim().toLowerCase();
   switch (key) {

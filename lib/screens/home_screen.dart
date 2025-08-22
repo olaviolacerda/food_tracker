@@ -50,18 +50,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   trailing: Text('R\$ ${yearlyTotal.toStringAsFixed(2)}', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red.shade700)),
                 ),
               ),
-              const SizedBox(height: 12),
-
-              const SizedBox(height: 20),
+              const SizedBox(height: 8),
               Card(
                 color: Colors.white,
                 elevation: 2,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 child: ListTile(
                   title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Total do mês ($totalOrders)'),
+                      Text('Total do mês'), const SizedBox(width: 4), CircleAvatar(
+                        maxRadius: 12,
+                        backgroundColor: Colors.red.shade700,
+                        child: Text('$totalOrders',style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+                      )
                     ],
                   ),
                   trailing: Text('R\$ ${totalSpent.toStringAsFixed(2)}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red.shade700)),
@@ -78,7 +79,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
               const SizedBox(height: 8),
               Column(
-                children: orders.take(3).map((order) => _orderCard(order)).toList(),
+                children: orders.take(10).map((order) => _orderCard(order)).toList(),
               ),
             ],
           ),
