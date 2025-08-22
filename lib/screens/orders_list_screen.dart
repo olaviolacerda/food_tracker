@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/orders_provider.dart';
-import '../models/order.dart';
 
 class OrdersListScreen extends ConsumerStatefulWidget {
   const OrdersListScreen({Key? key}) : super(key: key);
@@ -12,13 +11,6 @@ class OrdersListScreen extends ConsumerStatefulWidget {
 
 class _OrdersListScreenState extends ConsumerState<OrdersListScreen> {
   String _selectedMonth = 'all';
-
-  final List<Map<String, String>> months = [
-    {'value': 'all', 'label': 'Todos os meses'},
-    {'value': '2024-01', 'label': 'Janeiro 2024'},
-    {'value': '2024-02', 'label': 'Fevereiro 2024'},
-    {'value': '2024-03', 'label': 'Março 2024'},
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -36,8 +28,8 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen> {
         child: Column(
           children: [
             DropdownButtonFormField<String>(
-              value: _selectedMonth,
-              items: months.map((m) => DropdownMenuItem(value: m['value'], child: Text(m['label']!))).toList(),
+              initialValue: _selectedMonth,
+              items: _buildMonthItems(orders),
               onChanged: (v) => setState(() => _selectedMonth = v ?? 'all'),
               decoration: const InputDecoration(labelText: 'Selecionar mês'),
             ),
@@ -51,8 +43,8 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen> {
             ),
             const SizedBox(height: 12),
             Expanded(
-              child: filtered.isEmpty
-                  ? Center(child: Text('Nenhum pedido encontrado para este período.'))
+        child: filtered.isEmpty
+          ? const Center(child: Text('Nenhum pedido encontrado para este período.'))
                   : ListView.builder(
                       itemCount: filtered.length,
                       itemBuilder: (context, idx) {
@@ -71,7 +63,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen> {
                                 const SizedBox(height: 4),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(color: Colors.orange.withOpacity(0.12), borderRadius: BorderRadius.circular(12)),
+                                  decoration: BoxDecoration(color: const Color.fromRGBO(255, 165, 0, 0.12), borderRadius: BorderRadius.circular(12)),
                                   child: Text(order.category, style: const TextStyle(color: Colors.orange, fontSize: 12)),
                                 )
                               ],
@@ -89,4 +81,35 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen> {
 
   String _formatDate(DateTime d) => '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
   String _formatMonth(DateTime d) => '${d.year}-${d.month.toString().padLeft(2, '0')}';
+
+  List<DropdownMenuItem<String>> _buildMonthItems(List orders) {
+    final Set<String> seen = {}; // track year-month strings
+    final List<String> months = [];
+
+    for (final o in orders) {
+      final m = _formatMonth(o.date);
+      if (!seen.contains(m)) {
+        seen.add(m);
+        months.add(m);
+      }
+    }
+
+    // sort months descending (most recent first)
+    months.sort((a, b) => b.compareTo(a));
+
+    final items = <DropdownMenuItem<String>>[];
+    items.add(const DropdownMenuItem(value: 'all', child: Text('Todos os meses')));
+    for (final m in months) {
+      final parts = m.split('-');
+      final label = '${_monthName(int.parse(parts[1]))} ${parts[0]}';
+      items.add(DropdownMenuItem(value: m, child: Text(label)));
+    }
+
+    return items;
+  }
+
+  String _monthName(int month) {
+    const names = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+    return names[month-1];
+  }
 }
