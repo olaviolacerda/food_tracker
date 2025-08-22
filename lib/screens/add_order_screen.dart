@@ -46,7 +46,7 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
               TextFormField(
                 controller: _amountCtrl,
                 decoration: const InputDecoration(labelText: 'Valor', prefixIcon: Icon(Icons.attach_money)),
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 validator: (v) => v == null || v.isEmpty ? 'Informe o valor' : null,
               ),
               const SizedBox(height: 12),
@@ -65,7 +65,7 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: _category.isEmpty ? null : _category,
+                initialValue: _category.isEmpty ? null : _category,
                 decoration: const InputDecoration(labelText: 'Categoria'),
                 items: const [
                   DropdownMenuItem(value: 'Delivery', child: Text('Delivery')),
@@ -95,8 +95,10 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen> {
   void _save() {
     if (_formKey.currentState?.validate() ?? false) {
       final ordersNotifier = ref.read(ordersProvider.notifier);
-      final nextId = (ref.read(ordersProvider).isEmpty) ? 1 : ref.read(ordersProvider).first.id + 1;
-      final order = Order(id: nextId, establishment: _establishmentCtrl.text.trim(), amount: double.parse(_amountCtrl.text.replaceAll(',', '.')), date: _selectedDate, category: _category);
+  final currentOrders = ref.read(ordersProvider);
+  final nextId = (currentOrders.isEmpty) ? 1 : currentOrders.first.id + 1;
+  final userId = ref.read(authProvider);
+  final order = Order(id: nextId, establishment: _establishmentCtrl.text.trim(), amount: double.parse(_amountCtrl.text.replaceAll(',', '.')), date: _selectedDate, category: _category, userId: userId ?? 'unknown');
       ordersNotifier.addOrder(order);
       Navigator.of(context).pop();
     }

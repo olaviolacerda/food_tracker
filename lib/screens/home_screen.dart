@@ -13,16 +13,22 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  int _currentYear = DateTime.now().year;
+  // now persisted in providers so other screens keep the selection
+  // local vars are removed; use providers
 
   @override
   Widget build(BuildContext context) {
-    final orders = ref.watch(ordersProvider);
-    final yearlyTotal = orders.where((o) => o.date.year == _currentYear).fold(0.0, (s, o) => s + o.amount);
-    final totalSpent = orders.fold(0.0, (s, o) => s + o.amount);
-    final totalOrders = orders.length;
-    final currentMonth = DateTime.now();
-    final monthLabel = "${_monthName(currentMonth.month)} ${currentMonth.year}";
+  final orders = ref.watch(ordersProvider);
+  final now = DateTime.now();
+  final currentYear = now.year;
+  final currentMonth = now.month;
+  final yearlyTotal = orders.where((o) => o.date.year == currentYear).fold(0.0, (s, o) => s + o.amount);
+
+  // monthly totals/counts filtered by the current year and current month (always show vigente)
+  final monthFiltered = orders.where((o) => o.date.year == currentYear && o.date.month == currentMonth).toList();
+  final totalSpent = monthFiltered.fold(0.0, (s, o) => s + o.amount);
+  final totalOrders = monthFiltered.length;
+  final monthLabel = "${_monthName(currentMonth)} $currentYear";
 
     return Scaffold(
       appBar: AppBar(
@@ -37,24 +43,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               Card(
                 child: ListTile(
                   title: const Text('Total gasto no ano'),
-                  subtitle: Text('$_currentYear'),
                   trailing: Text('R\$ ${yearlyTotal.toStringAsFixed(2)}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 ),
               ),
               const SizedBox(height: 12),
               Card(
                 child: ListTile(
-                  title: Text('Total gasto em $monthLabel'),
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Total do mês (${totalOrders})'),
+                      Text('$totalOrders', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold))
+                    ],
+                  ),
                   trailing: Text('R\$ ${totalSpent.toStringAsFixed(2)}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ),
               ),
               const SizedBox(height: 12),
-              Card(
-                child: ListTile(
-                  title: Text('Número de pedidos em $monthLabel'),
-                  trailing: Text('$totalOrders', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                ),
-              ),
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
