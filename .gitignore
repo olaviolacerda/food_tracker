@@ -1,0 +1,97 @@
+# Flutter / Dart
+# See https://flutter.dev/ and https://github.com/flutter/flutter/blob/master/.gitignore
+
+# Misc
+.DS_Store
+*.class
+*.log
+*.pyc
+*.swp
+
+# IDEs and editors
+# IntelliJ / Android Studio
+*.iml
+*.ipr
+*.iws
+.idea/
+*.hprof
+
+# VS Code
+.vscode/
+
+# Flutter / Dart
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+build/
+**/doc/api/
+
+# Generated files
+**/ios/Flutter/.last_build_id
+**/Flutter/ephemeral/
+
+# Android
+# Local configuration file (sdk path, etc) should not be committed
+local.properties
+/.gradle/
+.gradle/
+**/android/.gradle/
+
+# Avoid committing Android build outputs
+**/build/
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# iOS
+# CocoaPods
+Pods/
+ios/Pods/
+macos/Pods/
+
+# iOS/OSX generated files and artifacts
+**/DerivedData/
+*.xcuserstate
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+
+# Xcode
+*.xcworkspace
+xcuserdata/
+
+# macOS
+macos/Flutter/ephemeral/
+
+# Build outputs (app bundles, packages)
+*.apk
+*.aar
+*.app
+*.ipa
+
+# Obfuscation / symbolication
+app.*.symbols
+app.*.map.json
+
+# Coverage
+coverage/
+.coverage
+
+# Misc project files
+*.keystore
+*.jks
+
+# Node / JS (some Flutter projects include web tooling)
+node_modules/
+
+# Lockfiles: keep pubspec.lock in apps (do not ignore). For JS tools ignore lock if desired
+package-lock.json
+yarn.lock
+
+# Others
+*.iml
+
